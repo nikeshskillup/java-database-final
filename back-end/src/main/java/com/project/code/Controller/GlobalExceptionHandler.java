@@ -1,18 +1,58 @@
 package com.project.code.Controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-// 1. Set Up the Global Exception Handler Class:
-//    - Annotate the class with `@RestControllerAdvice` to enable global exception handling for REST controllers.
-//    - This allows the class to handle exceptions thrown in any of the controllers globally.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleJsonParseException(HttpMessageNotReadableException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Invalid input: The data provided is not valid.");
+        response.put("error", "Malformed JSON request");
+        return response;
+    }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Validation error");
+        response.put("errors", ex.getBindingResult().getAllErrors());
+        return response;
+    }
 
-// 2. Define the `handleJsonParseException` Method:
-//    - Annotate with `@ExceptionHandler(HttpMessageNotReadableException.class)` to handle cases where the request body is not correctly formatted (e.g., invalid JSON).
-//    - The `HttpMessageNotReadableException` typically occurs when the input data cannot be deserialized or is improperly formatted.
-//    - Use `@ResponseStatus(HttpStatus.BAD_REQUEST)` to specify that the response status will be **400 Bad Request** when this exception is thrown.
-//    - The method should return a `Map<String, Object>` with the following key:
-//        - **`message`**: The error message should indicate that the input provided is invalid. The value should be `"Invalid input: The data provided is not valid."`.
-    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex, WebRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "An unexpected error occurred");
+        response.put("error", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleResourceNotFound(ResourceNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return response;
+    }
+}
+
+// Custom exception class
+class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
 }

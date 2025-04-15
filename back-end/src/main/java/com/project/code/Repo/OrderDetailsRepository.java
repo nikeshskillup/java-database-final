@@ -1,14 +1,43 @@
 package com.project.code.Repo;
 
+import com.project.code.Model.OrderDetails;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-public interface OrderDetailsRepository {
-// 1. Add the repository interface:
-//    - Extend JpaRepository<OrderDetails, Long> to inherit basic CRUD functionality.
-//    - This allows the repository to perform operations like save, delete, update, and find without having to implement these methods manually.
+import java.util.List;
 
-// Example: public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Long> {}
+@Repository
+public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Long> {
 
-// 2. Since no custom methods are required for this repository, the default CRUD operations (save, delete, update, findById, etc.) are available out of the box.
+    /**
+     * Finds orders by customer ID
+     * @param customerId The customer ID
+     * @return List of orders for the customer
+     */
+    List<OrderDetails> findByCustomerId(Long customerId);
 
+    /**
+     * Finds orders by store ID
+     * @param storeId The store ID
+     * @return List of orders for the store
+     */
+    List<OrderDetails> findByStoreId(Long storeId);
+
+    /**
+     * Finds orders by customer email
+     * @param email The customer email
+     * @return List of orders for the customer
+     */
+    @Query("SELECT o FROM OrderDetails o WHERE o.customer.email = :email")
+    List<OrderDetails> findByCustomerEmail(String email);
+
+    /**
+     * Finds orders within a date range
+     * @param start Start date
+     * @param end End date
+     * @return List of orders between dates
+     */
+    @Query("SELECT o FROM OrderDetails o WHERE o.orderDate BETWEEN :start AND :end")
+    List<OrderDetails> findByOrderDateBetween(LocalDateTime start, LocalDateTime end);
 }
-

@@ -1,39 +1,40 @@
 package com.project.code.Repo;
 
+import com.project.code.Model.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CustomerRepository {
-// 1. Add the repository interface:
-//    - Extend JpaRepository<Customer, Long> to inherit basic CRUD functionality.
-//    - This allows the repository to perform operations like save, delete, update, and find without having to implement these methods manually.
+import java.util.List;
+import java.util.Optional;
 
-// Example: public interface CustomerRepository extends JpaRepository<Customer, Long> {}
+@Repository
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-// 2. Add custom query methods:
-//    - **findByEmail**:
-//      - This method will allow you to find a customer by their email address.
-//      - Return type: Customer
-//      - Parameter: String email
-      
-// Example: public Customer findByEmail(String email);
+    /**
+     * Finds a customer by their email address
+     * @param email The email address to search for
+     * @return The customer with the matching email, or null if not found
+     */
+    Optional<Customer> findByEmail(String email);
 
-//    - **findById**:
-//      - This method will allow you to find a customer by their ID.
-//      - Return type: Customer
-//      - Parameter: Long id
-      
-// Example: public Customer findById(Long id);
+    /**
+     * Finds a customer by their ID
+     * @param id The customer ID to search for
+     * @return The customer with the matching ID, or null if not found
+     */
+    Optional<Customer> findById(Long id);
 
-// 3. Add any additional methods you may need for custom queries:
-//    - You can create other query methods as needed, like finding customers by name or phone number, etc.
+    /**
+     * Finds customers by name (case-insensitive)
+     * @param name The name to search for
+     * @return List of customers with matching names
+     */
+    List<Customer> findByNameContainingIgnoreCase(String name);
 
-// Example: public List<Customer> findByName(String name);
-
-// 4. Add @Repository annotation:
-//    - Mark the interface with @Repository to indicate that it's a Spring Data JPA repository.
-//    - This annotation is optional if you extend JpaRepository, as Spring Data automatically registers the repository, but it's good practice to add it for clarity.
-
-
-    
+    /**
+     * Checks if a customer with the given email exists
+     * @param email The email to check
+     * @return true if a customer with this email exists, false otherwise
+     */
+    boolean existsByEmail(String email);
 }
-
-
